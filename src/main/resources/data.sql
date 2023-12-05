@@ -1,0 +1,1 @@
+INSERT INTO users (id, username, password, email, registered) VALUES (1, 'admin', 'password', 'admin@email.com', CURRENT_TIMESTAMP());

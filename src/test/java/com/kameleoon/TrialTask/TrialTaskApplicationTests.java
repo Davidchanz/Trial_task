@@ -1,4 +1,4 @@
-package com.kameleoon.Trial_task;
+package com.kameleoon.TrialTask;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
