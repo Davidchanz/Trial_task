@@ -48,6 +48,9 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtEntryPoint;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     public SecurityConfig(CustomUserDetailsService userDetailService, JwtAuthenticationEntryPoint jwtEntryPoint) {
         this.userDetailService = userDetailService;
         this.jwtEntryPoint = jwtEntryPoint;
@@ -57,7 +60,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(){
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authProvider);
     }
 
@@ -128,11 +131,6 @@ public class SecurityConfig {
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
 }

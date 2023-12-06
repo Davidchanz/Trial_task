@@ -45,7 +45,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 jsonMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
                 ApiErrorDto errorDto = new ApiErrorDto(HttpStatus.UNAUTHORIZED,
                         request.getRequestURI().toString(),
-                        new ErrorDto(ex.getClass().getName(), "Full authentication is required to access this resource")
+                        new ErrorDto(ex.getClass().getName(), "Authentication is required to access this resource")
                 );
                 String json = jsonMapper.writeValueAsString(errorDto);
                 httpServletResponse.getOutputStream().println(json);

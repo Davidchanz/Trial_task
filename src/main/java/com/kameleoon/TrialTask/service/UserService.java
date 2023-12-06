@@ -1,7 +1,9 @@
 package com.kameleoon.TrialTask.service;
 
+import com.kameleoon.TrialTask.dto.UserAuthDto;
 import com.kameleoon.TrialTask.exception.EmailAlreadyExistException;
 import com.kameleoon.TrialTask.exception.UserAlreadyExistException;
+import com.kameleoon.TrialTask.mapper.UserMapper;
 import com.kameleoon.TrialTask.model.User;
 import com.kameleoon.TrialTask.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -14,18 +16,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
     @Autowired
-    private UserRepository userRepository;
+    public UserRepository userRepository;
 
-    private boolean userExists(String username) {
-        return userRepository.findByUsername(username).isPresent();
-    }
+    @Autowired
+    public UserMapper userMapper;
 
     private String encryptPassword(String password){
         return new BCryptPasswordEncoder().encode(password);
-    }
-
-    public User findUserByUserName(String userName){
-        return userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("Could not found a user with given name"));
     }
 
     public void registerNewUserAccount(User user) throws UserAlreadyExistException {
@@ -44,12 +41,27 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public boolean userExists(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    public User findUserByUserName(String userName){
+        return userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("Could not found a user with given name"));
+    }
+
     public void deleteByUsername(String username){
         userRepository.deleteByUsername(username);
     }
 
-    private boolean emailExists(String email) {
-        return userRepository.findByEmail(email).isPresent();
+    public void updateUser(String username, UserAuthDto userDto){
+        User user = findUserByUserName(username);
+        userDto.setPassword(encryptPassword(userDto.getPassword()));
+        userMapper.updateUserFromDto(userDto, user);
+        userRepository.save(user);
     }
 
 }

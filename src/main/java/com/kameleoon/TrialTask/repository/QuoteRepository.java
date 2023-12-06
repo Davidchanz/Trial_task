@@ -1,4 +1,7 @@
 package com.kameleoon.TrialTask.repository;
 
-public interface QuoteRepository {
+import com.kameleoon.TrialTask.model.Quote;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface QuoteRepository extends JpaRepository<Quote, Long> {
 }

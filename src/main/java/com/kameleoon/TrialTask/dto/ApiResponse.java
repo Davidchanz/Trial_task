@@ -9,8 +9,9 @@ import java.time.Instant;
 @Getter
 @Setter
 public abstract class ApiResponse {
+
     @NotNull
-    protected Instant created = Instant.now();
+    protected Instant createdOn = Instant.now();
 
     @NotNull
     protected int status;
