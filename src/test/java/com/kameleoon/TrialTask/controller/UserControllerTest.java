@@ -5,15 +5,13 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.kameleoon.TrialTask.config.SecurityConfig;
 import com.kameleoon.TrialTask.config.TestConfig;
-import com.kameleoon.TrialTask.dto.LoginDto;
 import com.kameleoon.TrialTask.dto.UserAuthDto;
 import com.kameleoon.TrialTask.dto.UserDto;
-import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissing;
+import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissingException;
 import com.kameleoon.TrialTask.mapper.UserMapper;
-import com.kameleoon.TrialTask.model.CustomUserDetails;
+import com.kameleoon.TrialTask.mapper.UserMapperImpl;
 import com.kameleoon.TrialTask.model.User;
 import com.kameleoon.TrialTask.repository.UserRepository;
-import com.kameleoon.TrialTask.service.AuthService;
 import com.kameleoon.TrialTask.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +19,8 @@ import org.mockito.InjectMocks;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -46,8 +41,8 @@ class UserControllerTest extends AbstractTest{
     @MockBean
     UserRepository userRepository;
 
-    @MockBean
-    UserMapper userMapper;
+    @InjectMocks
+    UserMapper userMapper = new UserMapperImpl();
 
     @InjectMocks
     UserController userController;
@@ -79,10 +74,13 @@ class UserControllerTest extends AbstractTest{
     @Test
     void UpdateUser_Success() throws Exception {
         when(principal.getName()).thenReturn(user.getUsername());
-        doNothing().when(userService).updateUser(any(String.class), any(UserAuthDto.class));
+        doCallRealMethod().when(userService).updateUser(any(String.class), any(UserAuthDto.class));
+        doCallRealMethod().when(userService).findUserByUserName(any(String.class));
+        doReturn(Optional.of(user)).when(userRepository).findByUsername(any(String.class));
+        doReturn(user).when(userRepository).save(any(User.class));
 
         UserAuthDto userAuthDto = new UserAuthDto();
-        userAuthDto.setUsername("admin");
+        userAuthDto.setUsername("boris!");
         userAuthDto.setEmail("admin@email.com");
         userAuthDto.setMatchingPassword("password");
         userAuthDto.setPassword("password");
@@ -99,6 +97,7 @@ class UserControllerTest extends AbstractTest{
                 .andExpect(status().isOk())
                 .andReturn();
         assertThat(result.getResponse().getContentAsString(), containsString("User [" + user.getUsername() + "] updated!"));
+        assertEquals(userAuthDto.getUsername(), user.getUsername());
     }
 
     @Test
@@ -107,13 +106,13 @@ class UserControllerTest extends AbstractTest{
                         .headers(headers)
                         .principal(principal))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RequiredRequestParamIsMissing))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RequiredRequestParamIsMissingException))
                 .andExpect(result -> assertEquals("Required request param UserAuthDto is missing", result.getResolvedException().getMessage()));
 
     }
 
     @Test
-    void UpdateUser_UsernameNotFound_ExceptionThrow() throws Exception {
+    void UpdateUser_UserNotFound_ExceptionThrow() throws Exception {
         when(principal.getName()).thenReturn(user.getUsername());
         doReturn(Optional.empty()).when(userRepository).findByUsername(any(String.class));
         doCallRealMethod().when(userService).updateUser(any(String.class), any(UserAuthDto.class));

@@ -1,8 +1,10 @@
 package com.kameleoon.TrialTask.model;
 
+import com.kameleoon.TrialTask.dto.QuoteContentDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,6 +19,7 @@ import java.util.Set;
 @Setter
 @Getter
 @ToString
+@NoArgsConstructor
 public class Quote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,24 +30,22 @@ public class Quote {
     @NotNull
     private String text;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User author;
 
-    @Column(name = "b_archive", nullable = false)
-    @NotNull
-    private boolean archiveFlag = false;
-
     @ToString.Exclude
-    @OneToMany(mappedBy = "quote", fetch = FetchType.LAZY)
-    private Set<QuoteStats> stats = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "quote", fetch = FetchType.LAZY)
+    private Set<QuoteState> stats = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
-    @NotNull
     @CreationTimestamp
     private Instant createdOn;
 
     @Column(nullable = false)
-    @NotNull
     @UpdateTimestamp
     private Instant lastUpdatedOn;
+
+    public Quote(QuoteContentDto quoteContentDto) {
+        this.setText(quoteContentDto.getText());
+    }
 }

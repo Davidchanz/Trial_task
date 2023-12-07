@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -58,11 +59,20 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorDto, headers, HttpStatus.BAD_REQUEST, request);
     }
 
-
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ApiErrorDto errorDto = new ApiErrorDto(HttpStatus.BAD_REQUEST,
+                ((ServletWebRequest)request).getRequest().getRequestURI().toString(),
+                new ErrorDto(ex.getClass().getName(), ex.getMessage())
+        );
+        return handleExceptionInternal(ex, errorDto, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
 
     @ExceptionHandler(value = {
             UserAlreadyExistException.class,
-            EmailAlreadyExistException.class
+            EmailAlreadyExistException.class,
+            UpVoteQuoteStateAlreadyExistException.class,
+            DownVoteQuoteStateAlreadyExistException.class
     })
     @ResponseStatus(HttpStatus.CONFLICT)
     protected ResponseEntity<Object> handleConflict(
@@ -86,6 +96,19 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
                 new ErrorDto(ex.getClass().getName(), ex.getMessage())
         );
         return handleExceptionInternal(ex, errorDto, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(value = {
+            AccessToResourceDeniedException.class
+    })
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    protected ResponseEntity<Object> handleForbidden(
+            RuntimeException ex, WebRequest request) {
+        ApiErrorDto errorDto = new ApiErrorDto(HttpStatus.FORBIDDEN,
+                ((ServletWebRequest)request).getRequest().getRequestURI().toString(),
+                new ErrorDto(ex.getClass().getName(), ex.getMessage())
+        );
+        return handleExceptionInternal(ex, errorDto, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
 
     @ExceptionHandler(value = {
@@ -115,7 +138,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-            RequiredRequestParamIsMissing.class
+            RequiredRequestParamIsMissingException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleRequiredRequestParamIsMissing(

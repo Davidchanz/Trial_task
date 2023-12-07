@@ -42,7 +42,7 @@ public class User {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<QuoteStats> stats = new HashSet<>();
+    private Set<QuoteState> stats = new HashSet<>();
 
     @ToString.Exclude
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

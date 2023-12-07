@@ -22,9 +22,6 @@ public class QuoteDto {
     private UserDto author;
 
     @NotNull
-    private boolean archiveFlag;
-
-    @NotNull
     private Instant createdOn;
 
     @NotNull
@@ -34,7 +31,6 @@ public class QuoteDto {
         this.id = quote.getId();
         this.text = quote.getText();
         this.author = new UserDto(quote.getAuthor());
-        this.archiveFlag = quote.isArchiveFlag();
         this.createdOn = quote.getCreatedOn();
         this.lastUpdatedOn = quote.getLastUpdatedOn();
     }

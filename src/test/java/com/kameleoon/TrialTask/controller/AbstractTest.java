@@ -5,6 +5,7 @@ import com.kameleoon.TrialTask.config.SecurityConfig;
 import com.kameleoon.TrialTask.config.TestConfig;
 import com.kameleoon.TrialTask.model.CustomUserDetails;
 import com.kameleoon.TrialTask.model.Quote;
+import com.kameleoon.TrialTask.model.QuoteState;
 import com.kameleoon.TrialTask.model.User;
 import com.kameleoon.TrialTask.security.JwtAuthenticationEntryPoint;
 import com.kameleoon.TrialTask.security.JwtTokenProvider;
@@ -56,11 +57,16 @@ public abstract class AbstractTest {
 
     Quote quote;
 
+    QuoteState voteUpQuoteState;
+    QuoteState voteDownQuoteState;
+
     CustomUserDetails customUserDetails = getCustomUserDetails();
 
     {
         user = getUser();
         quote = getQuote();
+        voteUpQuoteState = getVoteUpState();
+        voteDownQuoteState = getVoteDownState();
     }
 
     public void setUp(Object controller){
@@ -99,5 +105,23 @@ public abstract class AbstractTest {
         quote.setText("Quote!");
         quote.setAuthor(user);
         return quote;
+    }
+
+    public QuoteState getVoteUpState(){
+        QuoteState voteUpQuoteState = new QuoteState();
+        voteUpQuoteState.setId(1L);
+        voteUpQuoteState.setVoteValue(1);
+        voteUpQuoteState.setQuote(getQuote());
+        voteUpQuoteState.setUser(getUser());
+        return voteUpQuoteState;
+    }
+
+    public QuoteState getVoteDownState(){
+        QuoteState voteUpQuoteState = new QuoteState();
+        voteUpQuoteState.setId(1L);
+        voteUpQuoteState.setVoteValue(-1);
+        voteUpQuoteState.setQuote(getQuote());
+        voteUpQuoteState.setUser(getUser());
+        return voteUpQuoteState;
     }
 }

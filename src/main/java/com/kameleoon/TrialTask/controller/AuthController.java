@@ -4,7 +4,7 @@ import com.kameleoon.TrialTask.dto.ApiResponseSingleOk;
 import com.kameleoon.TrialTask.dto.LoginDto;
 import com.kameleoon.TrialTask.dto.TokenDto;
 import com.kameleoon.TrialTask.dto.UserAuthDto;
-import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissing;
+import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissingException;
 import com.kameleoon.TrialTask.exception.UserLoginException;
 import com.kameleoon.TrialTask.model.CustomUserDetails;
 import com.kameleoon.TrialTask.model.User;
@@ -38,7 +38,7 @@ public class AuthController {
     @PostMapping("/registration")
     public ResponseEntity<?> register(@Valid @RequestBody(required = false) UserAuthDto userAuthDto){
         if(userAuthDto == null)
-            throw new RequiredRequestParamIsMissing("Required request param UserAuthDto is missing");
+            throw new RequiredRequestParamIsMissingException("Required request param UserAuthDto is missing");
 
         User user = new User();
         user.setUsername(userAuthDto.getUsername());
@@ -51,7 +51,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody(required = false) LoginDto loginRequest){
         if(loginRequest == null)
-            throw new RequiredRequestParamIsMissing("Required request param LoginDto is missing");
+            throw new RequiredRequestParamIsMissingException("Required request param LoginDto is missing");
 
         Authentication authentication = authService.authenticateUser(loginRequest)
                 .orElseThrow(() -> new UserLoginException("Couldn't login user [" + loginRequest + "]"));

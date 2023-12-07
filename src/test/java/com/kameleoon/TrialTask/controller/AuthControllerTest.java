@@ -8,7 +8,7 @@ import com.kameleoon.TrialTask.config.TestConfig;
 import com.kameleoon.TrialTask.dto.LoginDto;
 import com.kameleoon.TrialTask.dto.UserAuthDto;
 import com.kameleoon.TrialTask.exception.EmailAlreadyExistException;
-import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissing;
+import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissingException;
 import com.kameleoon.TrialTask.exception.UserAlreadyExistException;
 import com.kameleoon.TrialTask.exception.UserLoginException;
 import com.kameleoon.TrialTask.model.CustomUserDetails;
@@ -101,7 +101,7 @@ public class AuthControllerTest extends AbstractTest{
     void Login_LoginDtoParameterMissing_ExceptionThrow() throws Exception {
         this.mvc.perform(post("/api/auth/login"))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RequiredRequestParamIsMissing))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RequiredRequestParamIsMissingException))
                 .andExpect(result -> assertEquals("Required request param LoginDto is missing", result.getResolvedException().getMessage()));
     }
 
@@ -128,7 +128,7 @@ public class AuthControllerTest extends AbstractTest{
     void Register_UserDtoParameterMissing_ExceptionThrow() throws Exception {
         this.mvc.perform(post("/api/auth/registration"))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RequiredRequestParamIsMissing))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RequiredRequestParamIsMissingException))
                 .andExpect(result -> assertEquals("Required request param UserAuthDto is missing", result.getResolvedException().getMessage()));
     }
 
