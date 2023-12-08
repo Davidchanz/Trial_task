@@ -576,4 +576,54 @@ public class QuoteControllerTest extends AbstractTest{
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof MissingPathVariableException))
                 .andExpect(result -> assertEquals("Required URI template variable 'id' for method parameter type Long is present but converted to null", result.getResolvedException().getMessage()));
     }
+
+    @Test
+    void GetQuoteGraph_ChangeQuoteStateVoteValue_Success() throws Exception {
+        when(quoteStateService.getQuoteVoteGraphData(any(Quote.class))).thenReturn(votes);
+        doCallRealMethod().when(quoteService).findQuoteById(any(Long.class));
+        when(quoteRepository.findById(any(Long.class))).thenReturn(Optional.of(quote));
+
+        this.mvc.perform(get("/api/quote/graph/{id}", 1)
+                        .headers(headers)
+                        .principal(principal))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void GetQuoteGraph_QuoteWithIdNotFound_ExceptionThrow() throws Exception {
+        long quoteId = 200L;
+
+        when(quoteStateService.getQuoteVoteGraphData(any(Quote.class))).thenReturn(votes);
+        doCallRealMethod().when(quoteService).findQuoteById(any(Long.class));
+        when(quoteRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+
+        this.mvc.perform(get("/api/quote/graph/{id}", quoteId)
+                        .headers(headers)
+                        .principal(principal))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof QuoteNotFoundException))
+                .andExpect(result -> assertEquals("Quote with id [" + quoteId + "] not found!", result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void GetQuoteGraph_PathVariableTypeMismatch_ExceptionThrow() throws Exception {
+        this.mvc.perform(get("/api/quote/graph/{id}", "badId")
+                        .headers(headers)
+                        .principal(principal))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentTypeMismatchException))
+                .andExpect(result -> assertEquals("Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: \"badId\"", result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void GetQuoteGraph_PathVariableMissing_ExceptionThrow() throws Exception {
+        this.mvc.perform(get("/api/quote/graph/{d}", " ")
+                        .headers(headers)
+                        .principal(principal))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MissingPathVariableException))
+                .andExpect(result -> assertEquals("Required URI template variable 'id' for method parameter type Long is present but converted to null", result.getResolvedException().getMessage()));
+    }
+
 }
+

@@ -3,7 +3,6 @@ package com.kameleoon.TrialTask.controller;
 import com.kameleoon.TrialTask.dto.*;
 import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissingException;
 import com.kameleoon.TrialTask.model.Quote;
-import com.kameleoon.TrialTask.model.QuoteState;
 import com.kameleoon.TrialTask.model.User;
 import com.kameleoon.TrialTask.service.QuoteService;
 import com.kameleoon.TrialTask.service.QuoteStateService;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -124,6 +122,4 @@ public class QuoteController {
         graphDto.setMinTime(data.get(0).getVotedOn());
         return new ResponseEntity<>(graphDto, HttpStatus.OK);
     }
-
-    //todo add tests: pathvar missing, pathvar bad, quote not found
 }

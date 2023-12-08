@@ -8,7 +8,6 @@ import com.kameleoon.TrialTask.exception.RequiredRequestParamIsMissingException;
 import com.kameleoon.TrialTask.exception.UserLoginException;
 import com.kameleoon.TrialTask.model.CustomUserDetails;
 import com.kameleoon.TrialTask.model.User;
-import com.kameleoon.TrialTask.security.JwtTokenProvider;
 import com.kameleoon.TrialTask.service.AuthService;
 import com.kameleoon.TrialTask.service.UserService;
 import jakarta.validation.Valid;
@@ -25,9 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     private AuthService authService;
@@ -57,7 +53,7 @@ public class AuthController {
                 .orElseThrow(() -> new UserLoginException("Couldn't login user [" + loginRequest + "]"));
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        System.out.println("Logged in User returned [API]: " + customUserDetails.getUsername());
+        //System.out.println("Logged in User returned [API]: " + customUserDetails.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwtToken = authService.generateToken(customUserDetails);

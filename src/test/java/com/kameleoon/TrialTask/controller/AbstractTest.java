@@ -3,6 +3,8 @@ package com.kameleoon.TrialTask.controller;
 import com.kameleoon.TrialTask.advice.ExceptionHandlerAdvice;
 import com.kameleoon.TrialTask.config.SecurityConfig;
 import com.kameleoon.TrialTask.config.TestConfig;
+import com.kameleoon.TrialTask.dto.GraphDto;
+import com.kameleoon.TrialTask.dto.VoteDto;
 import com.kameleoon.TrialTask.model.CustomUserDetails;
 import com.kameleoon.TrialTask.model.Quote;
 import com.kameleoon.TrialTask.model.QuoteState;
@@ -27,7 +29,7 @@ import java.nio.charset.Charset;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
 
 @Import({ SecurityConfig.class, TestConfig.class })
 public abstract class AbstractTest {
@@ -35,38 +37,45 @@ public abstract class AbstractTest {
     public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(), MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
     @Autowired
-    MockMvc mvc;
+    public MockMvc mvc;
 
     @MockBean
-    CustomUserDetailsService customUserDetailsService;
+    public CustomUserDetailsService customUserDetailsService;
 
     @MockBean
-    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    public JwtTokenProvider jwtTokenProvider;
 
-    String token;
+    public String token;
 
-    HttpHeaders headers;
+    public HttpHeaders headers;
 
     @Mock
-    Principal principal;
+    public Principal principal;
 
-    User user;
+    public User user;
 
-    Quote quote;
+    public Quote quote;
 
-    QuoteState voteUpQuoteState;
-    QuoteState voteDownQuoteState;
+    public QuoteState voteUpQuoteState;
 
-    CustomUserDetails customUserDetails = getCustomUserDetails();
+    public QuoteState voteDownQuoteState;
+
+    public GraphDto graphDto;
+
+    public List<VoteDto> votes;
+
+    public CustomUserDetails customUserDetails = getCustomUserDetails();
 
     {
         user = getUser();
         quote = getQuote();
         voteUpQuoteState = getVoteUpState();
         voteDownQuoteState = getVoteDownState();
+        votes = getVotes();
+        graphDto = getGraphDto();
     }
 
     public void setUp(Object controller){
@@ -123,5 +132,27 @@ public abstract class AbstractTest {
         voteUpQuoteState.setQuote(getQuote());
         voteUpQuoteState.setUser(getUser());
         return voteUpQuoteState;
+    }
+
+    private List<VoteDto> getVotes() {
+        List<VoteDto> data = new ArrayList<>();
+        data.add(new VoteDto(Instant.now(), 1));
+        data.add(new VoteDto(Instant.now(), 1));
+        data.add(new VoteDto(Instant.now(), -1));
+        return data;
+    }
+
+    public GraphDto getGraphDto(){
+        GraphDto graphDto = new GraphDto();
+        List<VoteDto> data = new ArrayList<>();
+        data.add(new VoteDto(votes.get(0).getVotedOn(), 1));
+        data.add(new VoteDto(votes.get(1).getVotedOn(), 2));
+        data.add(new VoteDto(votes.get(2).getVotedOn(), 1));
+        graphDto.setData(data);
+        graphDto.setMaxRating(data.get(data.size()-1).getVoteValue());
+        graphDto.setMinRating(data.get(0).getVoteValue());
+        graphDto.setMaxTime(data.get(data.size()-1).getVotedOn());
+        graphDto.setMinTime(data.get(0).getVotedOn());
+        return graphDto;
     }
 }

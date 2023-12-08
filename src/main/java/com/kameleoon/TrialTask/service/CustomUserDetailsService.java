@@ -20,14 +20,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> dbUser = userRepository.findByUsername(username);
-        System.out.println("Fetched user : " + dbUser + " by " + username);
+        //System.out.println("Fetched user : " + dbUser + " by " + username);
         return dbUser.map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("Couldn't find a matching user email in the database for " + username));
     }
 
     public UserDetails loadUserById(Long id) {
         Optional<User> dbUser = userRepository.findById(id);
-        System.out.println("Fetched user : " + dbUser + " by " + id);
+        //System.out.println("Fetched user : " + dbUser + " by " + id);
         return dbUser.map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("Couldn't find a matching user id in the database for " + id));
     }
