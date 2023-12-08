@@ -1,0 +1,29 @@
+version: '3'
+services:
+  spring-app:
+    image: openjdk:17-jre-alpine
+    container_name: spring-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - h2database
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:h2:tcp://h2database:1521/mem:TrialTaskDB
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_H2_CONSOLE_ENABLED: "true"
+    volumes:
+      - ./target/Trial_task-0.0.1.jar:/app.jar
+
+  h2database:
+    image: h2database/h2
+    container_name: h2database
+    ports:
+      - "1521:1521"
+      - "81:81"
+    environment:
+      H2_CONSOLE_PORT: 81
+      H2_DATA_DIR: /h2-data
+    volumes:
+      - ./h2-data:/h2-data
