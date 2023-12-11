@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/quote")
 public class QuoteController {
 
     @Autowired
@@ -30,18 +30,20 @@ public class QuoteController {
     @Autowired
     public QuoteStateService quoteStateService;
 
-    @GetMapping("/quote/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<QuoteDto> getQuote(@Valid @PathVariable Long id){
         return new ResponseEntity<>(new QuoteDto(quoteService.findQuoteById(id)), HttpStatus.OK);
     }
 
-    @GetMapping("/quote/rnd")
+    @GetMapping("/rnd")
     public ResponseEntity<QuoteDto> getRandomQuote(){
         return new ResponseEntity<>(new QuoteDto(quoteService.getRandomQuote()), HttpStatus.OK);
     }
 
-    @PostMapping("/quote/add")
-    public ResponseEntity<QuoteDto> addNewQuote(@Valid @RequestBody(required = false) QuoteContentDto quoteContentDto, Principal principal){
+    @PostMapping("/add")
+    public ResponseEntity<QuoteDto> addNewQuote(
+            @Valid @RequestBody(required = false) QuoteContentDto quoteContentDto,
+            Principal principal){
         if(quoteContentDto == null)
             throw new RequiredRequestParamIsMissingException("Required request param QuoteContentDto is missing");
 
@@ -51,39 +53,31 @@ public class QuoteController {
         return new ResponseEntity<>(new QuoteDto(quote), HttpStatus.OK);
     }
 
-    @PutMapping("/quote/update/{id}")
-    public ResponseEntity<ApiResponse> updateQuote(@Valid @PathVariable Long id, @Valid @RequestBody(required = false) QuoteContentDto quoteContentDto){
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ApiResponse> updateQuote(
+            @Valid @PathVariable Long id,
+            @Valid @RequestBody(required = false) QuoteContentDto quoteContentDto,
+            Principal principal){
         if(quoteContentDto == null)
             throw new RequiredRequestParamIsMissingException("Required request param QuoteContentDto is missing");
 
-        quoteService.updateQuote(id, quoteContentDto);
-        return new ResponseEntity<>(new ApiResponseSingleOk("Update Quote", "New Quote content is [" + quoteContentDto.getText() + "]"), HttpStatus.OK);
+        User currentUser = userService.findUserByUserName(principal.getName());
+        quoteService.updateQuote(currentUser, id, quoteContentDto);
+        return new ResponseEntity<>(
+                new ApiResponseSingleOk("Update Quote", "New Quote content is [" + quoteContentDto.getText() + "]"),
+                HttpStatus.OK);
     }
 
-    @DeleteMapping("/quote/delete/{id}")
-    public ResponseEntity<ApiResponse> updateQuote(@Valid @PathVariable Long id, Principal principal){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse> deleteQuote(@Valid @PathVariable Long id, Principal principal){
         User currentUser = userService.findUserByUserName(principal.getName());
         Quote quote = quoteService.deleteQuote(currentUser, id);
-        return new ResponseEntity<>(new ApiResponseSingleOk("Delete Quote", "Quote [" + quote.getText() + "] was deleted!"), HttpStatus.OK);
+        return new ResponseEntity<>(
+                new ApiResponseSingleOk("Delete Quote", "Quote [" + quote.getText() + "] was deleted!"),
+                HttpStatus.OK);
     }
 
-    @PostMapping("/quote/vote/up/{id}")
-    public ResponseEntity<ApiResponse> upVote(@Valid @PathVariable Long id, Principal principal){
-        User currentUser = userService.findUserByUserName(principal.getName());
-        Quote quote = quoteService.findQuoteById(id);
-        quoteStateService.addUpVoteQuoteState(quote, currentUser);
-        return new ResponseEntity<>(new ApiResponseSingleOk("Up Vote", "Up Vote for Quote [" + quote.getText() + "] by user [" + currentUser.getUsername() + "]"), HttpStatus.OK);
-    }
-
-    @PostMapping("/quote/vote/down/{id}")
-    public ResponseEntity<ApiResponse> downVote(@Valid @PathVariable Long id, Principal principal){
-        User currentUser = userService.findUserByUserName(principal.getName());
-        Quote quote = quoteService.findQuoteById(id);
-        quoteStateService.addDownVoteQuoteState(quote, currentUser);
-        return new ResponseEntity<>(new ApiResponseSingleOk("Down Vote", "Down Vote for Quote [" + quote.getText() + "] by user [" + currentUser.getUsername() + "]"), HttpStatus.OK);
-    }
-
-    @GetMapping("/quote/top10")
+    @GetMapping("/top10")
     public ResponseEntity<List<QuoteDto>> getTop10Quotes(){
         var top10Quotes = quoteStateService.getTop10QuoteStates()
                 .stream()
@@ -93,7 +87,7 @@ public class QuoteController {
         return new ResponseEntity<>(top10Quotes, HttpStatus.OK);
     }
 
-    @GetMapping("/quote/worse10")
+    @GetMapping("/worse10")
     public ResponseEntity<List<QuoteDto>> getWorse10Quotes(){
         var top10Quotes = quoteStateService.getWorse10QuoteStates()
                 .stream()
@@ -103,7 +97,7 @@ public class QuoteController {
         return new ResponseEntity<>(top10Quotes, HttpStatus.OK);
     }
 
-    @GetMapping("/quote/graph/{id}")
+    @GetMapping("/graph/{id}")
     public ResponseEntity<GraphDto> getQuoteGraph(@Valid @PathVariable Long id){
         Quote quote = quoteService.findQuoteById(id);
         var votes = quoteStateService.getQuoteVoteGraphData(quote);

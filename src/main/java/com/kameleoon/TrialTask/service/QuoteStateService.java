@@ -22,7 +22,8 @@ public class QuoteStateService {
 
     public void addUpVoteQuoteState(Quote quote, User user) {
         if(quoteStateRepository.findUpVoteQuoteStateByUserAndQuote(quote, user).isPresent())
-            throw new UpVoteQuoteStateAlreadyExistException("User [" + user.getUsername() + "] already voted for Quote [" + quote.getText() + "]");
+            throw new UpVoteQuoteStateAlreadyExistException(
+                    "User [" + user.getUsername() + "] already voted up for Quote [" + quote.getText() + "]");
 
         var downVoteQuoteState = quoteStateRepository.findDownVoteQuoteStateByUserAndQuote(quote, user);
         if(downVoteQuoteState.isPresent()){
@@ -38,7 +39,8 @@ public class QuoteStateService {
 
     public void addDownVoteQuoteState(Quote quote, User user) {
         if(quoteStateRepository.findDownVoteQuoteStateByUserAndQuote(quote, user).isPresent())
-            throw new DownVoteQuoteStateAlreadyExistException("User [" + user.getUsername() + "] already voted for Quote [" + quote.getText() + "]");
+            throw new DownVoteQuoteStateAlreadyExistException(
+                    "User [" + user.getUsername() + "] already voted down for Quote [" + quote.getText() + "]");
 
         var upVoteQuoteState= quoteStateRepository.findUpVoteQuoteStateByUserAndQuote(quote, user);
         if(upVoteQuoteState.isPresent()){

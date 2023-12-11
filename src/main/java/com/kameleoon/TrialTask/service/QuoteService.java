@@ -32,7 +32,7 @@ public class QuoteService {
     public Quote getRandomQuote() {
         var quotes = quoteRepository.findAll();
         if(quotes.isEmpty())
-            throw new QuoteNotFoundException("Quote not found!");
+            throw new QuoteNotFoundException("Quotes not found!");
         return quotes.get(new Random().nextInt(quotes.size()));
     }
 
@@ -40,8 +40,11 @@ public class QuoteService {
         quoteRepository.save(quote);
     }
 
-    public void updateQuote(Long id, QuoteContentDto quoteContentDto) {
+    public void updateQuote(User user, Long id, QuoteContentDto quoteContentDto) {
         Quote quote = findQuoteById(id);
+        if(!Objects.equals(quote.getAuthor().getId(), user.getId()))
+            throw new AccessToResourceDeniedException("You don't have rights to update Quote with id [" + id + "]");
+
         quoteMapper.updateQuoteFromDto(quoteContentDto, quote);
         quoteRepository.save(quote);
     }
@@ -49,7 +52,7 @@ public class QuoteService {
     public Quote deleteQuote(User user, Long id) {
         Quote quote = findQuoteById(id);
         if(!Objects.equals(quote.getAuthor().getId(), user.getId()))
-            throw new AccessToResourceDeniedException("You don't have rights to delete quote with id [" + id + "]");
+            throw new AccessToResourceDeniedException("You don't have rights to delete Quote with id [" + id + "]");
         quoteRepository.delete(quote);
         return quote;
     }

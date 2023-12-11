@@ -1,4 +1,4 @@
-package com.kameleoon.TrialTask;
+package com.kameleoon.TrialTask.security;
 
 import com.kameleoon.TrialTask.controller.UserController;
 import com.kameleoon.TrialTask.service.UserService;

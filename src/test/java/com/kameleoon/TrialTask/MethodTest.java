@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest({ UserController.class })
 @Import({ SecurityConfig.class, TestConfig.class })
-public class CommonTest extends AbstractTest {
+public class MethodTest extends AbstractTest {
 
     @MockBean
     UserService userService;
